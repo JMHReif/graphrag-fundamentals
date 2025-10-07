@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sec-neo4j": {
+      "command": "uvx",
+      "args": [ "mcp-neo4j-cypher@0.4.1", "--transport", "stdio"  ],
+      "env": {
+        "NEO4J_URI": "neo4j+s://demo.neo4jlabs.com",
+        "NEO4J_USERNAME": "companies",
+        "NEO4J_PASSWORD": "companies",
+        "NEO4J_DATABASE": "companies"
+      }
+    }
+  }
+}

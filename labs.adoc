@@ -1,0 +1,329 @@
+= Lab exercises
+:toc:
+:sectlinks:
+
+These lab exercises will step you through building Spring AI applications for GraphRAG with Large Language Models (LLMs), vector/graph databases, Retrieval Augmented Generation (RAG), and more!
+
+Domain classes for this data application are already defined to map to entities in Neo4j, so you can plug them into logic you write in these exercises. While these classes do not cover all of the entities available in the database, they cover enough to explore this use case.
+
+== Setup
+
+Make sure you have the following things:
+
+* OpenAI key (temporary key is granted by presenter during live course). You can sign up for a free account - https://auth.openai.com/log-in.
+* Java 17 or higher
+* Maven
+
+Next, you need to set the OpenAI key and any other properties in your environment.
+
+1. Rename the `exampleEnv.sh` script to `env.sh`:
++
+```shell
+cp exampleEnv.sh env.sh
+```
+2. OpenAI API Key: Set your OpenAI API key in the copied `env.sh` script:
++
+```shell
+export OPENAI_API_KEY=your_openai_api_key_here
+```
+3. Run the `env.sh` to set your environment:
++
+```shell
+source ./env.sh
+```
+
+In the `pom.xml`, you will also need one base dependency in order to create a REST API to test each method:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+[#lab1]
+== Lab 1: Run a Neo4j query in a Java application
+
+=== 1.1 Dependencies and config
+
+To run a query in Spring and Neo4j, you will need one more dependency for Neo4j, as well as properties to configure the connection to the database.
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-neo4j</artifactId>
+</dependency>
+```
+
+Properties set in the `application.properties` file:
+
+```properties
+spring.neo4j.uri=neo4j+s://demo.neo4jlabs.com
+spring.neo4j.authentication.username=companies
+spring.neo4j.authentication.password=companies
+spring.data.neo4j.database=companies
+```
+
+*Note:* You are welcome to use this public, read-only database or configure your own Neo4j instance!
+
+=== 1.2 Repository interface
+
+Create a new interface named `OrganizationRepository` and extend it with the `Neo4jRepository<Organization, String>`.
+
+```java
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+
+public interface OrganizationRepository extends Neo4jRepository<Organization, String> {
+}
+```
+
+=== 1.3 Repository query
+
+Define a method within the repository to run a custom Cypher query against Neo4j (using the `@Query` annotation). You can use the query below or create your own, but you must return organizations (and related entities), and I recommend LIMIT-ing the results so that you can easily review the data.
+
+```java
+import org.springframework.data.neo4j.repository.query.Query;
+import com.jmhreif.graphrag_fundamentals.domain.Organization;
+import java.util.List;
+
+    @Query("MATCH (o:Organization)<-[rel:MENTIONS]-(a:Article) " +
+            "RETURN o, collect(rel), collect(a) LIMIT 3;")
+    List<Organization> findOrganizations();
+```
+
+=== 1.4 Controller class
+
+Create the controller class for the REST API. Include a high-level endpoint to access all methods in this class.
+
+```java
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/")
+public class OrganizationController {
+}
+```
+
+Inject the repository to access and execute the query.
+
+```java
+    private final OrganizationRepository repository;
+
+    public OrganizationController(OrganizationRepository repository) {
+        this.repository = repository;
+    }
+```
+
+=== 1.5 Method and endpoint implementation
+
+Define a method and endpoint for executing the query.
+
+```java
+import org.springframework.web.bind.annotation.GetMapping;
+
+    @GetMapping("/articleMentions")
+    public List<Organization> getArticleMentions() {
+        return repository.findOrganizations();
+    }
+```
+
+=== 1.6 Test the application
+
+Start the application, either in the terminal with `./mvnw spring-boot:run` or in the IDE, then ping the endpoint you defined to run the query and return organization data.
+
+```shell
+http ":8080/articleMentions"
+```
+
+[#lab2]
+== Lab 2: Execute a vector similarity search with a graph as the vector store
+
+=== 2.1 Dependencies and config
+
+Another two dependencies are required for using Neo4j as a vector store and connecting to a Large Language Model.
+
+```xml
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-vector-store-neo4j</artifactId>
+</dependency>
+```
+
+Configuration also needs an update in the `application.properties` file for setting which node label and index name to look for in Neo4j (as they doesn't match https://docs.spring.io/spring-ai/reference/api/vectordbs/neo4j.html#neo4jvector-properties[Spring AI's defaults^]).
+
+```properties
+spring.ai.vectorstore.neo4j.label=Chunk
+spring.ai.vectorstore.neo4j.index-name=news
+spring.ai.vectorstore.neo4j.initialize-schema=false
+
+spring.ai.openai.api-key=${OPENAI_KEY} <1>
+
+logging.level.org.springframework.ai=DEBUG
+```
+<1> There are a couple of different ways to set the OpenAI key. You can remove the variable value (`${OPENAI_KEY}`) and hard-code the key here, or you can set it in an environment variable on your machine using the steps from the link:#_setup[setup section].
+
+=== 2.2 Inject AI ChatClient
+
+You will need the following items:
+
+1. ChatClient - to send requests to the LLM (OpenAI, here) for it to create an embedding, and then respond to the original question.
+2. VectorStore - to run a vector similarity search in Neo4j to find similar article chunks for the user question.
+
+In the `OrganizationController.java` class, add the necessary code to produce the following result:
+
+```java
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.vectorstore.neo4j.Neo4jVectorStore;
+
+public class OrganizationController {
+    private final OrganizationRepository repository;
+    private final ChatClient chatClient;
+    private final Neo4jVectorStore vectorStore;
+
+    public OrganizationController(OrganizationRepository repository, ChatClient.Builder builder, Neo4jVectorStore vectorStore) {
+        this.repository = repository;
+        this.chatClient = builder.build();
+        this.vectorStore = vectorStore;
+    }
+}
+```
+
+=== 2.3 Prompt definition
+
+While there are no set rules when defining prompts, there are a few practices I am using here for the prompt-stuffing technique.
+
+1. Setting the tone and backstory the LLM should use and what type of input to expect. You can think of this like an actor getting into character. In this application, the LLM is playing the part of a news expert on articles and organizations who should use any context provided (from the database using RAG) to answer the question.
+2. Inserting the user's question into the prompt. This helps the LLM trace patterns that are as closely related to the user input as possible and know exactly what the user is asking and needs in the response.
+3. Adding context from external sources (RAG piece) further guides the LLM's answer. Both the user input and related context help the LLM construct and evaluate answers that are more relevant and accurate.
+
+Add the prompt below to the variables in the controller class (before or after constructor is fine):
+
+```java
+String prompt = """
+    You are a news expert providing answers to questions about news articles, and the organizations mentioned in them.
+    Based on this question:
+    {question}
+    Please answer using this context:
+    {context}
+""";
+```
+
+*Note:* Once you have a working solution, feel free to return here and tweak the prompt to see how that affects the requests and answers!
+
+=== 2.4 Vector similarity search
+
+This exercise will start by showing how to do a vector similarity search manually, but Spring also offers more abstracted RAG and GraphRAG through its https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html[RAG modules^]. Examples with advisors are available in this repository.
+
+Add a new method and endpoint to the controller class for RAG and call the vector similarity search method on the Neo4j vector store, and return results as the Spring AI `Document` entity.
+
+```java
+import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
+import org.springframework.ai.document.Document;
+
+@GetMapping("/manualRAG")
+public String manualVectorRAG(@RequestParam String question) {
+    List<Document> results = vectorStore.similaritySearch(question);
+}
+```
+
+=== 2.5 Stuff the prompt with context
+
+"Stuff" the prompt with the user's question and similarity search results (`context`).
+
+```java
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+    var template = new PromptTemplate(prompt)
+        .create(Map.of("question", question,
+            "context", results.stream().map(Document::toString).collect(Collectors.joining("\n"))));
+    System.out.println("----- PROMPT -----"); <1>
+    System.out.println(template);
+```
+<1> Print the prompt to the console. You can review the prompt, user question, and vector search context in the console.
+
+=== 2.6 Call LLM API
+
+Call the LLM and send the stuffed prompt (`template` variable), returning the answer string (`.content` key).
+
+```java
+    return chatClient.prompt(template)
+            .user(question)
+            .call().content();
+```
+
+=== 2.7 Test the application
+
+Start the application (making sure OpenAI key is set in environment first), either in the terminal with `./mvnw spring-boot:run` or in the IDE, then ping the endpoint you defined to run the query and return organization data.
+
+```shell
+http ":8080/rag/manualRAG?question=What is the latest news about toys?"
+http ":8080/rag/manualRAG?question=Were there major investments made recently?"
+http ":8080/rag/manualRAG?question=What news is related to cybersecurity threats?"
+http ":8080/rag/manualRAG?question=Are there any major funding announcements related to technology?"
+```
+
+[#lab3]
+== Lab 3: Build a GraphRAG solution
+
+GraphRAG adds a retrieval query that pulls connected entities in the graph for the similarity search results.
+
+=== 3.1 Define a new query method in the interface
+
+You have run a vector similarity search in the previous lab exercise. Next, you need to write a Cypher query to pull related entities to those similar article chunks.
+
+Open the `OrganizationRepository` interface and add a new method with a custom query.
+
+```java
+@Query("MATCH (o:Organization)<-[rel:MENTIONS]-(a:Article)-[rel2:HAS_CHUNK]->(c:Chunk) " +
+    "WHERE c.id IN $chunkIds " + <1>
+    "OPTIONAL MATCH (o)-[rel3:HAS_CATEGORY]->(i:IndustryCategory) " + <2>
+    "RETURN o, collect(rel), collect(a), collect(rel2), collect(c), collect(rel3), collect(i);") <3>
+List<Organization> findGraphEntities(List<String> chunkIds);
+```
+<1> Finds chunks from the similarity search and retrieves patterns for connected articles and organizations.
+<2> Optionally finds connected industry categories.
+<3> Returns each part of the pattern, collecting entities connected to the primary organizations into lists to ensure non-duplicated patterns for each unique organization.
+
+=== 3.2 Define a new method and endpoint in the controller
+
+Create a new method in the `OrganizationController` for GraphRAG that will execute a vector similarity search, retrieve related entities from the graph, and send everything to the LLM.
+
+```java
+@GetMapping("/manualGraphRAG")
+public String manualGraphRAG(@RequestParam String question) {
+    List<Document> results = vectorStore.similaritySearch(question);
+    List<Organization> orgList = repository.findGraphEntities(results.stream().map(Document::getId).toList()); <1>
+
+    var template = new PromptTemplate(prompt)
+        .create(Map.of("question", question,
+            "context", orgList.stream().map(Organization::toString).collect(Collectors.joining("\n")))); <2>
+    System.out.println("----- PROMPT -----");
+    System.out.println(template);
+
+    return chatClient.prompt(template).call().content();
+}
+```
+<1> The `orgList` variable calls the new repository method (`findGraphEntities`), passing in the chunk `ids` from the similarity search results.
+<2> Sets the `context` variable in the `template` with the `Organization` entities from the graph retrieval.
+
+The rest of the code is the same as the vector search method in link:#lab2[Lab 2^].
+
+=== 3.3 Test the application
+
+Start the application (making sure OpenAI key is set in environment first), either in the terminal with `./mvnw spring-boot:run` or in the IDE, then ping the endpoint you defined to run the query and return organization data.
+
+```shell
+http ":8080/rag/manualGraphRAG?question=What organizations are mentioned related to layoffs?"
+http ":8080/rag/manualGraphRAG?question=Which industries are most affected by the layoffs?"
+http ":8080/rag/manualGraphRAG?question=Are there organizations with major investments recently?"
+```
+
+You can review the prompt, user question, and graph context in the console.
