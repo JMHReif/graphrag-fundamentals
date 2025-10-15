@@ -5,9 +5,10 @@ A hands-on online training course for learning GraphRAG. Hosted for Pearson thro
 ////
 TODOs:
 - create a labs branch of this repo!
+- retest since removing controller-level path
 - step through labs exercises from labs branch!
 - Generate OpenAI key for GDoc notes
-- create Langchain4j version of app
+- create GH issue on Langchain4j for read-only db!
 ////
 
 == Overview
@@ -79,32 +80,32 @@ Test the endpoints.
 http ":8080/articleMentions"
 
 #LLM questions
-http ":8080/rag/llm?question=Who is Jennifer Reif?"
-http ":8080/rag/llm?question=Could you create a short poem about technology in the style of Emily Dickinson?"
-http ":8080/rag/llm?question=Who is Jennifer Reif using this as context? Jennifer Reif is a developer advocate at Neo4j, focusing on the Java ecosystem. She is a technical speaker, blogger, podcaster, and author, with an MS in CMIS."
-http ":8080/rag/llm?question=What is the latest news about toys?"
+http ":8080/llm?question=Who is Jennifer Reif?"
+http ":8080/llm?question=Could you create a short poem about technology in the style of Emily Dickinson?"
+http ":8080//llm?question=Who is Jennifer Reif using this as context? Jennifer Reif is a developer advocate at Neo4j, focusing on the Java ecosystem. She is a technical speaker, blogger, podcaster, and author, with an MS in CMIS."
+http ":8080/llm?question=What is the latest news about toys?"
 
 #Vector RAG questions
-http ":8080/rag/manualRAG?question=What is the latest news about toys?"
+http ":8080/manualRAG?question=What is the latest news about toys?"
 ##bare minimum results
-http ":8080/rag/manualRAG?question=What organizations are mentioned related to layoffs?"
+http ":8080/manualRAG?question=What organizations are mentioned related to layoffs?"
 
 #GraphRAG questions
-http ":8080/rag/manualGraphRAG?question=What organizations are mentioned related to layoffs?"
-http ":8080/rag/manualGraphRAG?question=Which industries are most affected by the layoffs?"
+http ":8080/manualGraphRAG?question=What organizations are mentioned related to layoffs?"
+http ":8080/manualGraphRAG?question=Which industries are most affected by the layoffs?"
 #GraphRAG (advisor) questions
-http ":8080/rag/graphRAG?question=Are there new launch announcements in the news?"
-http ":8080/rag/graphRAG?question=Which industries are seeing the most change?"
-http ":8080/rag/graphRAG?question=What are the major funding announcements related to technology?"
+http ":8080/graphRAG?question=Are there new launch announcements in the news?"
+http ":8080/graphRAG?question=Which industries are seeing the most change?"
+http ":8080/graphRAG?question=What are the major funding announcements related to technology?"
 
 ##DEMO portion:
 
 #Bad RAG question
-http ":8080/rag/manualGraphRAG?question=What is the latest news with Volkswagen?"
-http ":8080/rag/compare?question=What is the latest news with Volkswagen?"
+http ":8080/manualGraphRAG?question=What is the latest news with Volkswagen?"
+http ":8080/compare?question=What is the latest news with Volkswagen?"
 #Good RAG questions
-http ":8080/rag/manualRAG?question=Were there major investments made recently?"
-http ":8080/rag/manualGraphRAG?question=Are there organizations with major investments recently?"
+http ":8080/manualRAG?question=Were there major investments made recently?"
+http ":8080/manualGraphRAG?question=Are there organizations with major investments recently?"
 
 #Agentic
 http ":8080/agents/debug/tools"
