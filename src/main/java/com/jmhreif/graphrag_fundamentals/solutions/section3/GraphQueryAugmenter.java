@@ -1,4 +1,4 @@
-package com.jmhreif.graphrag_fundamentals;
+package com.jmhreif.graphrag_fundamentals.solutions.section3;
 
 import com.jmhreif.graphrag_fundamentals.domain.Organization;
 import org.springframework.ai.document.Document;

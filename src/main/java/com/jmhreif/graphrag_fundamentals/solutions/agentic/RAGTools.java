@@ -1,6 +1,6 @@
-package com.jmhreif.graphrag_fundamentals.agentic;
+package com.jmhreif.graphrag_fundamentals.solutions.agentic;
 
-import com.jmhreif.graphrag_fundamentals.OrganizationRepository;
+import com.jmhreif.graphrag_fundamentals.solutions.section3.OrganizationRepository;
 import com.jmhreif.graphrag_fundamentals.domain.Organization;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.tool.annotation.Tool;

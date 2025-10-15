@@ -1,4 +1,4 @@
-package com.jmhreif.graphrag_fundamentals.agentic;
+package com.jmhreif.graphrag_fundamentals.solutions.agentic;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
