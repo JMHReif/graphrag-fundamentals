@@ -4,11 +4,7 @@ A hands-on online training course for learning GraphRAG. Hosted for Pearson thro
 
 ////
 TODOs:
-- create a labs branch of this repo!
-- retest since removing controller-level path
-- step through labs exercises from labs branch!
-- Generate OpenAI key for GDoc notes
-- create GH issue on Langchain4j for read-only db!
+- ?
 ////
 
 == Overview

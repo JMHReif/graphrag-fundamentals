@@ -85,7 +85,8 @@ public class OrganizationController {
         System.out.println("----- PROMPT -----");
         System.out.println(template);
 
-        return chatClient.prompt(template).call().content();
+        return chatClient.prompt(template)
+                .call().content();
     }
 
     @GetMapping("/graphRAG")
