@@ -48,17 +48,19 @@ public class OrganizationController {
         this.graphQueryAugmenter = graphQueryAugmenter;
     }
 
-    @GetMapping("/articleMentions")
-    public List<Organization> getArticleMentions() {
-        return repository.findOrganizations();
-    }
-
     //Demo purpose
     @GetMapping("/llm")
     public ChatResponse llm(@RequestParam String question) {
         return chatClient.prompt(question).call().chatResponse();
     }
 
+    //Section 1: Neo4j query
+    @GetMapping("/articleMentions")
+    public List<Organization> getArticleMentions() {
+        return repository.findOrganizations();
+    }
+
+    //Section 2: RAG - vector similarity search
     @GetMapping("/manualRAG")
     public String manualVectorRAG(@RequestParam String question) {
         List<Document> results = vectorStore.similaritySearch(question);
@@ -74,6 +76,7 @@ public class OrganizationController {
                 .call().content();
     }
 
+    //Section 3: GraphRAG - vector search + graph retrieval
     @GetMapping("/manualGraphRAG")
     public String manualGraphRAG(@RequestParam String question) {
         List<Document> results = vectorStore.similaritySearch(question);
@@ -89,6 +92,7 @@ public class OrganizationController {
                 .call().content();
     }
 
+    //Demo purpose
     @GetMapping("/graphRAG")
     public String advisedGraphRAG(@RequestParam String question) {
         Advisor retrieveAugmentAdvisor = RetrievalAugmentationAdvisor.builder()

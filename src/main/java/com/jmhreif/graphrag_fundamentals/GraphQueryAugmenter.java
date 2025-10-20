@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//Demo purpose
 @Component
 public class GraphQueryAugmenter implements QueryAugmenter {
     private final OrganizationRepository orgRepository;

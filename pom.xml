@@ -31,6 +31,7 @@
 		<spring-ai.version>1.0.3</spring-ai.version>
 	</properties>
 	<dependencies>
+        <!-- Section 1: Neo4j query -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-neo4j</artifactId>
@@ -39,17 +40,19 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+        <!-- Section 2&3: RAG - vector similarity search -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-vector-store-neo4j</artifactId>
+        </dependency>
+        <!-- Demo purpose -->
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-advisors-vector-store</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-openai</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-vector-store-neo4j</artifactId>
 		</dependency>
         <dependency>
             <groupId>org.springframework.ai</groupId>

@@ -8,10 +8,12 @@ import org.springframework.data.neo4j.repository.query.Query;
 import java.util.List;
 
 public interface OrganizationRepository extends Neo4jRepository<Organization, String> {
+    //Section 1: Neo4j query
     @Query("MATCH (o:Organization)<-[rel:MENTIONS]-(a:Article) " +
             "RETURN o, collect(rel), collect(a) LIMIT 3;")
     List<Organization> findOrganizations();
 
+    //Section 3: GraphRAG - graph retrieval query
     @Query("MATCH (o:Organization)<-[rel:MENTIONS]-(a:Article)-[rel2:HAS_CHUNK]->(c:Chunk) " +
             "WHERE c.id IN $chunkIds " +
             "OPTIONAL MATCH (o)-[rel3:HAS_CATEGORY]->(i:IndustryCategory) " +
