@@ -2,7 +2,7 @@
 
 A hands-on online training course for learning GraphRAG. Hosted for Pearson through O'Reilly media.
 
-Quarkus/Langchain4j verison of this app: https://github.com/JMHReif/graphrag-fundamentals-quarkus[graphrag-fundamentals-quarkus^]
+Quarkus/Langchain4j version of this app: https://github.com/JMHReif/graphrag-fundamentals-quarkus[graphrag-fundamentals-quarkus^]
 
 ////
 TODOs:
