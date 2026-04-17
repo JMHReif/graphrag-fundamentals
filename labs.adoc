@@ -11,7 +11,7 @@ Domain classes for this data application are already defined to map to entities 
 Make sure you have the following things:
 
 * OpenAI key (temporary key is granted by presenter during live course). You can sign up for a free account - https://auth.openai.com/log-in.
-* Java 17 or higher (this application uses Java 21)
+* Java 25 or higher
 * Maven
 
 Next, you need to set the OpenAI key and any other properties in your environment.
@@ -37,7 +37,7 @@ In the `pom.xml`, you will also need one base dependency in order to create a RE
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
+    <artifactId>spring-boot-starter-webmvc</artifactId>
 </dependency>
 ```
 
@@ -264,10 +264,8 @@ Call the LLM and send the stuffed prompt (`template` variable), returning the an
 Start the application (make sure OpenAI key is set in environment first), either in the terminal with `./mvnw spring-boot:run` or in the IDE, then ping the endpoint you defined to run the query and return organization data.
 
 ```shell
-http ":8080/manualRAG?question=What is the latest news about toys?"
-http ":8080/manualRAG?question=Were there major investments made recently?"
-http ":8080/manualRAG?question=What news is related to cybersecurity threats?"
-http ":8080/manualRAG?question=Are there any major funding announcements related to technology?"
+http ":8080/manualRAG?question=Which companies recently announced major layoffs?"
+http ":8080/manualRAG?question=What cybersecurity threats are being discussed in the news?"
 ```
 
 [#lab3]
@@ -321,9 +319,9 @@ The rest of the code is the same as the vector search method in link:#lab2[Lab 2
 Start the application (making sure OpenAI key is set in environment first), either in the terminal with `./mvnw spring-boot:run` or in the IDE, then ping the endpoint you defined to run the query and return organization data.
 
 ```shell
-http ":8080/manualGraphRAG?question=What organizations are mentioned related to layoffs?"
-http ":8080/manualGraphRAG?question=Which industries are most affected by the layoffs?"
-http ":8080/manualGraphRAG?question=Are there organizations with major investments recently?"
+http ":8080/manualGraphRAG?question=Which companies recently announced major layoffs?"
+http ":8080/manualGraphRAG?question=Which industries are most affected by layoffs?"
+http ":8080/manualGraphRAG?question=What types of organizations are dealing with major investments recently?"
 ```
 
 You can review the prompt, user question, and graph context in the console.
