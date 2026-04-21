@@ -108,12 +108,13 @@ http ":8080/agents/debug/tools"
 ##Vector agent
 http ":8080/agents/agentic?question=What news is related to cybersecurity threats?"
 ##Graph agent
-http ":8080/agents/agentic?question=Which industries are seeing the most change within recent 30-day periods?"
+http ":8080/agents/agentic?question=Which companies are active in the finance industry?"
 ##Text2Cypher agent
 http ":8080/agents/agentic?question=Which organizations are not public and have revenue over 50 billion?"
 http ":8080/agents/agentic?question=Where is iDefense organization located?"
 http ":8080/agents/agentic?question=How many employees does CRMWaypoint have?"
-http ":8080/agents/agentic?question=Which organizations have the most article mentions and what sectors are they in?"
+##Combination
+http ":8080/agents/agentic?question=What industries are most represented among organizations in the graph?"
 ----
 
 == Labs

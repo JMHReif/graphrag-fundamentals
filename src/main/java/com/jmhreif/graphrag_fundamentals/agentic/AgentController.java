@@ -16,8 +16,13 @@ public class AgentController {
 
     public AgentController(ChatClient.Builder builder, SyncMcpToolCallbackProvider provider, RAGTools ragTools) {
         this.chatClient = builder
-                .defaultSystem("You are useful assistant that calls tools to reply to questions." +
-                        "When using the neo4j_cypher tools, always call the get_neo4j_schema tool first and always return the executed Cypher query with the answer.")
+                .defaultSystem("""
+                        You are a helpful assistant that answers questions using the available tools. Choose tools by question type:
+                        - vectorSearch: questions about news article contents, topics, or sentiment.
+                        - graphEnrichedSearch: broad, semantic questions about which organizations or industries appear in news topics or trends.
+                        - Neo4j MCP tools (get-schema then read-cypher): ANY question requiring exact property values, specific named entity lookup, numeric filtering, counting, or aggregation.
+                        Always prefer MCP tools when the question has specific names, numbers, or filters.
+                        When using MCP tools, call get-schema first, then read-cypher. Return the executed Cypher query with your answer.""")
                 .defaultToolCallbacks(provider.getToolCallbacks())
                 .defaultTools(ragTools)
                 .build();

@@ -21,7 +21,7 @@ public class RAGTools {
         this.repository = repository;
     }
 
-    @Tool(description = "Answer questions about news article contents, topics, or sentiment")
+    @Tool(description = "Semantic search over news article text. Use for content, topic, or sentiment questions (e.g. cybersecurity threats, market news, geopolitical events).")
     public String vectorSearch(String query) {
         List<Document> results = vectorStore.similaritySearch(query);
 
@@ -34,7 +34,7 @@ public class RAGTools {
         return formattedResults;
     }
 
-    @Tool(description = "Answer questions about organizations, industries, and cities in the graph")
+    @Tool(description = "Retrieve organizations with their industry categories and locations from the knowledge graph, enriched with relevant articles. Use for entity-focused or trend questions about companies, sectors, cities, or time-based industry activity.")
     public String graphEnrichedSearch(String query) {
         List<Document> vectorResults = vectorStore.similaritySearch(query);
 

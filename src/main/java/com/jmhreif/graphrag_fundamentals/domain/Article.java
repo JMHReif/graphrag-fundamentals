@@ -6,9 +6,8 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public record Article(@Id String id,
+public record Article(@Id String uri,
                       String title,
-                      String author,
                       String siteName,
                       ZonedDateTime date,
                       Double sentiment,
