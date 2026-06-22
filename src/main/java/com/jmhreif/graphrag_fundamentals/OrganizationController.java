@@ -124,7 +124,7 @@ public class OrganizationController {
 
         //Large result set
         List<Document> largeResults = vectorStore.similaritySearch(
-                SearchRequest.builder().query(question).topK(8).build()
+                SearchRequest.builder().query(question).topK(10).build()
         );
         List<OrgProjection> largeCompanies = repository.findEntitiesCompare(
                 largeResults.stream().map(Document::getId).collect(Collectors.toList())

@@ -23,8 +23,7 @@ public class AgentController {
                         - Neo4j MCP tools (get-schema then read-cypher): ANY question requiring exact property values, specific named entity lookup, numeric filtering, counting, or aggregation.
                         Always prefer MCP tools when the question has specific names, numbers, or filters.
                         When using MCP tools, call get-schema first, then read-cypher. Return the executed Cypher query with your answer.""")
-                .defaultToolCallbacks(provider.getToolCallbacks())
-                .defaultTools(ragTools)
+                .defaultTools(provider, ragTools)
                 .build();
         this.mcpProvider = provider;
     }
